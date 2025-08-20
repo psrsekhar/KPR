@@ -1,0 +1,19 @@
+TINYINT   1byte  -128 to 127
+SMALLINT  2bytes -32768 to 32767
+MEDIUMINT 3bytes -8388608 to 8388607
+INT       4bytes -2147483648 to 2147483647
+BIGINT    8bytes  -2^32 to (2^32-1)
+FLOAT     4bytes
+DOUBLE    8bytes
+DECIMAL   OS dependent (upto 65-digit)
+
+char(n)		0 to 255 characters
+varchar(n)      0 to 65535 characters
+TINYTEXT	0 to 255 characters
+TEXT		0 to 65535 characters
+
+
+
+
+
+

@@ -49,23 +49,8 @@ alter table movies.info add column ott_id int not null default 2;
 
 select * from movies.ott;
 
-drop table if exists movies.ott;
-
-drop database if exists movies;
-
 alter database movies CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 
+-- drop table if exists movies.ott;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+-- drop database if exists movies;

@@ -58,7 +58,15 @@ insert into kprcas.department(name) VALUES ("Admin"), ("Transport"), ("Placement
 create table if not exists kprcas.test(
     name varchar(100) not null
 );
-insert into kprcas.test VALUES(select name from kprcas.department);
+INSERT INTO kprcas.test (name)
+SELECT name FROM kprcas.department;
+
+-- CTE select insert (MySQL doesnt support)
+WITH dept_name AS (
+    SELECT id, name FROM kprcas.department
+)
+INSERT INTO kprcas.test (id, name) 
+SELECT id, name FROM dept_name;
 
 --insert ignore to ignore errors on duplicate keys
 insert ignore into kprcas.department VALUES(3, "EEE");
@@ -87,10 +95,6 @@ INSERT INTO kprcas.employee (name, email, department_id, salary, doj, address) V
 ('Meera Pillai', 'meera.pillai@kprcas.com', 4, 49000.00, '2023-04-12', '23 Lotus Enclave, Trivandrum'),
 ('Karan Patel', 'karan.patel@kprcas.com', 4, 56000.00, '2022-10-18', '11 Sapphire Lane, Ahmedabad'),
 ('Anjali Rao', 'anjali.rao@kprcas.com', 4, 50500.00, '2021-05-07', '76 Coral Street, Surat');
-
--- CTE select insert
-WITH dept_name AS (select id, name from kprcas.department)
-insert into kprcas.test (id, name) VALUES (select id, name from dept_name);
 
 -- get all columns
 select * from kprcas.department;

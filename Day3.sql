@@ -147,35 +147,58 @@ INSERT INTO kprcas.accounts (name, balance) VALUES
 ('Neha Verma', 1075.35);
 
 
-DELIMITER //
-CREATE PROCEDURE IF NOT EXISTS transfer_funds(IN sender bigint, IN reciever bigint, IN amount decimal(10, 2))
+CREATE PROCEDURE if not exists `transfer_funds`(
+    IN sender BIGINT, 
+    IN receiver BIGINT, 
+    IN amount DECIMAL(10,2)
+)
 BEGIN
-    DECLARE sender_balance decimal(10, 2);
+    DECLARE sender_balance DECIMAL(10,2);
+    DECLARE receiver_exists INT DEFAULT 0;
+
     START TRANSACTION;
-    select account_id, balance INTO sender_balance from kprcas.accounts WHERE account_id = sender;
+    
+    -- Lock both rows for concurrency safety
+    SELECT balance INTO sender_balance 
+    FROM kprcas.accounts 
+    WHERE account_id = sender
+    FOR UPDATE;
+    
+    SELECT COUNT(*) INTO receiver_exists
+    FROM kprcas.accounts
+    WHERE account_id = receiver
+    FOR UPDATE;
+    
     IF sender_balance IS NULL THEN
         ROLLBACK;
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Account doesnt exists';
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Sender account does not exist';
+    ELSEIF receiver_exists = 0 THEN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Receiver account does not exist';
     ELSEIF sender_balance < amount THEN
         ROLLBACK;
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'INSufficient funds';
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Insufficient funds';
     ELSE
         UPDATE kprcas.accounts SET balance = balance - amount WHERE account_id = sender;
-
-        UPDATE kprcas.accounts SET balance = balance + amount WHERE account_id = reciever;
-
+        UPDATE kprcas.accounts SET balance = balance + amount WHERE account_id = receiver;
         COMMIT;
-    END IF;-
-END //
-DELIMITER;
+    END IF;
+END;
+
 -- 980.75 ,  1500.00
 CALL kprcas.transfer_funds(321456790, 321456791, 500.00);
 
+-- creating a user in mysql
+create user 'test'@'localhost' IDENTIFIED BY 'Demo@!4#';
 
+-- granting access to user
+GRANT SELECT, INSERT, UPDATE ON KPRCAS.* TO 'test'@'localhost';
 
+-- full access on all tables in a database
+GRANT ALL PRIVILEGES ON KPRCAS.* TO 'test'@'localhost';
 
+-- all privileges of a user
+SHOW GRANTS FOR 'test'@'localhost';
 
-
-
-
-
+-- to revoke permissions from a user
+REVOKE ALL PRIVILEGES ON KPRCAS.* TO 'test'@'localhost';
